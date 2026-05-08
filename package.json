@@ -1,0 +1,10 @@
+{
+    "dependencies" : {
+        "react": "^18.2.0",
+        "react-dom": "^18,2,0",
+        "gsap": "^3.12.0",
+        "gl-matrix": "^3.4.3",
+        "framer-motion": "^11.0.0"
+    }
+}
+

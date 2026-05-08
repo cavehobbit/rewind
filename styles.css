@@ -1,0 +1,77 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Centarell', 'Fira Sans', 'Droid Sans', 'Helvetic Neue', sans-serif ;
+
+    overflow-x: hidden;
+}
+
+.app-container {
+    width: 100vm;
+    height: 300vh;
+    background: linear-gradient(180deg, #00BFFF 0%, #87CEEB 50%, #1E90FF 100%);
+    position: relative;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
+
+.page {
+    width: 100vm;
+    height: 100vh;
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+.page-1 {
+    justify-content: flex-end;
+    padding-right: 5% ;
+
+}
+
+.card-swap-wrapper {
+    position: relative;
+}
+
+
+.card-swap-container {
+    position: relative;
+    perspective: 900px;
+    overflow: visible;
+}
+
+.card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 12px;
+    border: 2px solid #333;
+    background: #FFD700;
+    transform-style: perserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.month-card h3 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    
+}
