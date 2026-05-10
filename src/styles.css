@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Covered+By+Your+Grace&family=Lavishly+Yours&family=Molle:ital@1&family=Nothing+You+Could+Do&display=swap');
 
 * {
@@ -10,21 +11,32 @@ html,
 body,
 #root {
   height: 100%;
+  width: 100%;
+  overflow: hidden; 
+  background: #1a1a1a;
 }
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #1a1a1a;
   color: #ffffff;
-  overflow: hidden;
 }
+
 
 .app-scroll {
   height: 100vh;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   position: relative;
-  background: #1a1a1a;
+  scroll-behavior: smooth;
+}
+
+
+.app-bg-active {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/black.jfif');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: #000;
 }
 
 .page {
@@ -37,7 +49,6 @@ body {
   position: relative;
 }
 
-/* Welcome screen */
 
 .welcome-screen {
   width: 100vw;
@@ -49,6 +60,7 @@ body {
   gap: 3rem;
   position: relative;
   background: #1a1a1a;
+  z-index: 100;
 }
 
 .spotlight {
@@ -78,6 +90,12 @@ body {
   cursor: pointer;
   position: relative;
   z-index: 2;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
 .click-text {
@@ -93,14 +111,12 @@ body {
   left: -120px;
   top: 50%;
   transform: translate(0, -50%) rotate(-85deg);
-  transform-origin: center;
 }
 
 .click-right {
   right: -120px;
   top: 50%;
   transform: translate(0, -50%) rotate(85deg);
-  transform-origin: center;
 }
 
 .continue-button {
@@ -113,94 +129,80 @@ body {
   font-weight: 700;
   font-size: 1.3rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: all 0.2s ease;
   z-index: 2;
-  position: relative;
 }
 
 .continue-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5);
+  background: #fff;
 }
 
-/* Cake modal and glow */
 
-.cake-glow-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.candle-glow {
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 110px;
-  height: 110px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 215, 0, 0.85) 0%,
-    rgba(255, 165, 0, 0.5) 40%,
-    transparent 70%
-  );
-  border-radius: 50%;
-  filter: blur(14px);
-  animation: flicker 2s ease-in-out infinite;
-  z-index: 11;
-}
-
-@keyframes flicker {
-  0%, 100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateX(-50%) scale(1.1);
-  }
-}
-
-.cake-modal {
-  position: relative;
-  max-width: 650px;
-  z-index: 12;
-}
-
-/* Dim overlay */
 
 .dim-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.78);
-  z-index: 11;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(8px);
 }
 
-/* Month card modal */
+.cake-glow-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.candle-glow {
+  position: absolute;
+  top: 10%;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+  filter: blur(15px);
+  animation: flicker 1.5s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.cake-modal {
+  max-width: 400px;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+}
 
 .month-card-modal {
   position: relative;
   width: 90%;
   max-width: 900px;
   height: 500px;
-  background: #c41e3a;
+  background: #c41e3a; /* Deep Red */
   border-radius: 20px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
   display: flex;
   overflow: hidden;
-  z-index: 12;
   border: 3px solid rgba(255, 255, 255, 0.2);
+  animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.month-card-left,
-.month-card-right {
+@keyframes modalPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.month-card-left, .month-card-right {
   flex: 1;
+  padding: 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3rem;
 }
 
 .month-card-image {
@@ -208,43 +210,33 @@ body {
   height: 100%;
   object-fit: cover;
   border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
 .month-card-title {
-  font-family: "Comic Sans MS", "Comic Sans", cursive;
-  font-size: 3rem;
-  color: #fff;
-  margin-bottom: 1.2rem;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: "Comic Sans MS", cursive;
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
 }
 
 .month-card-text {
   font-family: 'Cedarville Cursive', cursive;
-  font-size: 1.6rem;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 1.5rem;
+  line-height: 1.6;
 }
 
-/* Page 1 */
-
-.page-1 {
-  flex-direction: column;
-  gap: 1.5rem;
-}
 
 .page-1-header {
   width: 100%;
-  text-align: left;
-  padding-left: 6%;
-  margin-top: -1.5rem;
-  margin-bottom: 0.5rem;
+  padding-left: 5%;
+  margin-bottom: 2rem;
 }
 
 .happy-birthday-title {
   font-family: 'Lavishly Yours', cursive;
-  font-size: 5rem;
-  font-weight: 400;
+  font-size: 6rem;
+  color: #ffd700;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 .page-1-inner {
@@ -253,165 +245,83 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3rem;
 }
-
-.page-1-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.page-1-swap {
-  flex-shrink: 0;
-}
-
-/* Card swap visuals */
 
 .card-swap-container {
   position: relative;
-  perspective: 900px;
-  overflow: visible;
 }
 
 .card-swap-card {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
   background: #c41e3a;
-  transform-style: preserve-3d;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
-  transition: filter 0.2s ease;
-}
-
-.card-swap-card:hover {
-  filter: brightness(1.07);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
 }
 
 .month-card h3 {
-  font-family: "Comic Sans MS", "Comic Sans", cursive;
-  font-size: 2.4rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12rem;
-  color: #fff;
-  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-}
-
-/* Page 2 */
-
-.page-2 {
-  max-width: 1100px;
-  margin: 0 auto;
-  gap: 3rem;
-  background: url('/black.jfif') center/cover no-repeat;
-  border-radius: 20px;
-  padding: 3rem;
-}
-
-.page-2-left {
-  flex: 1;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 2.2rem;
+  color: white;
 }
 
 .page-2-left h2 {
   font-family: 'Lavishly Yours', cursive;
-  font-size: 3.6rem;
-  font-weight: 400;
-  margin-bottom: 0.8rem;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+  font-size: 4rem;
+  margin-bottom: 1rem;
 }
 
 .page-2-left p {
   font-family: 'Nothing You Could Do', cursive;
   font-size: 1.4rem;
+  opacity: 0.8;
 }
 
 .page-2-right {
   flex: 1;
+  height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
-/* Infinite memories canvas – big & clipped */
-
 #infinite-grid-menu-canvas {
+  width: 100% !important;
+  height: 100% !important;
   cursor: grab;
-  width: 900px;
-  height: 600px;
   outline: none;
 }
 
-#infinite-grid-menu-canvas:active {
-  cursor: grabbing;
-}
-
-/* Page 3 */
-
-.page-3 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.page-3-dark {
-  background: radial-gradient(circle at center, rgba(40, 40, 40, 1) 0%, rgba(10, 10, 10, 1) 70%);
-}
-
 .stepper-container {
-  width: 90%;
-  max-width: 600px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  padding: 3rem 2.5rem;
-  backdrop-filter: blur(18px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.8);
-  transition: opacity 0.3s ease;
-}
-
-.stepper-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.stepper-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  padding: 3rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 }
 
 .stepper-text {
   font-family: 'Lavishly Yours', cursive;
   font-size: 3rem;
-  font-weight: 400;
-  text-align: center;
-  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+  margin-bottom: 2rem;
 }
 
-.stepper-input {
+.stepper-input, .stepper-input-focused {
   width: 100%;
-  padding: 1rem 1.4rem;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
+  padding: 1rem;
+  border-radius: 50px;
+  border: 2px solid #ffd700;
+  background: rgba(0,0,0,0.4);
+  color: white;
+  text-align: center;
   font-size: 1.1rem;
   outline: none;
-  text-align: center;
-}
-
-.stepper-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .stepper-input-focused {
@@ -419,172 +329,54 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 560px;
-  padding: 1.2rem 1.8rem;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(24px);
-  color: #fff;
-  font-size: 1.2rem;
-  outline: none;
-  text-align: center;
-  z-index: 12;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
-}
-
-.stepper-input-focused::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  width: 80%;
+  max-width: 600px;
+  z-index: 3000;
+  background: rgba(20,20,20,0.95);
 }
 
 .stepper-button {
-  padding: 0.9rem 2.6rem;
-  border-radius: 999px;
+  margin-top: 1.5rem;
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px;
   border: none;
-  cursor: pointer;
   background: #ffd700;
-  color: #333;
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-weight: bold;
+  cursor: pointer;
 }
-
-.stepper-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.8);
-}
-
-/* Stack */
 
 .stack-box {
-  width: 90%;
-  max-width: 560px;
-  height: 360px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  padding: 2rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.9);
+  width: 100%;
+  max-width: 450px;
+  height: 550px;
   opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(20px);
+  transition: all 1s ease-out;
 }
 
 .stack-box.fade-in {
   opacity: 1;
-  transform: scale(1);
-}
-
-.stack-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  perspective: 600px;
-}
-
-.stack-card-rotate,
-.stack-card-rotate-disabled {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.stack-card-rotate {
-  cursor: grab;
-}
-
-.stack-card-rotate-disabled {
-  cursor: pointer;
+  transform: translateY(0);
 }
 
 .stack-card {
-  border-radius: 16px;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
-}
-
-.stack-card-top {
-  filter: none;
-  opacity: 1;
-  z-index: 10;
-}
-
-.stack-card-shadow {
-  filter: brightness(0.4) blur(1px);
-  opacity: 0.5;
+  border: 8px solid white;
+  background: white;
+  border-radius: 4px;
 }
 
 .stack-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
 }
 
-/* Responsive */
-
 @media (max-width: 900px) {
-  .page-1 {
-    padding-top: 3rem;
-  }
-
-  .happy-birthday-title {
-    font-size: 3.8rem;
-  }
-
-  .page-1-inner {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .page-1-text {
-    align-items: center;
-  }
-
-  .page-2 {
-    flex-direction: column;
-    max-width: 100%;
-    border-radius: 0;
-  }
-
-  .page-2-left,
-  .page-2-right {
-    width: 100%;
-  }
-
-  .page-2-left h2 {
-    font-size: 2.8rem;
-  }
-
-  #infinite-grid-menu-canvas {
-    width: 100%;
-    height: 400px;
-  }
-
-  .month-card-modal {
-    flex-direction: column;
-    height: auto;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .click-left {
-    left: -80px;
-    font-size: 2rem;
-  }
-
-  .click-right {
-    right: -80px;
-    font-size: 2rem;
-  }
-} 
+  .happy-birthday-title { font-size: 4rem; }
+  .page-1-inner { flex-direction: column; gap: 4rem; }
+  .month-card-modal { flex-direction: column; height: auto; max-height: 90vh; }
+  .month-card-left, .month-card-right { padding: 1.5rem; }
+  .month-card-title { font-size: 2.5rem; }
+  .page-2 { flex-direction: column; text-align: center; }
+  .page-2-right { height: 400px; width: 100%; }
+}
