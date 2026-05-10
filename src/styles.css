@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Covered+By+Your+Grace&family=Lavishly+Yours&family=Molle:ital@1&family=Nothing+You+Could+Do&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -12,12 +14,30 @@ body,
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(180deg, #00bfff 0%, #4fc3f7 40%, #0288d1 100%);
+  background: #1a1a1a;
   color: #ffffff;
   overflow: hidden;
 }
 
+.app-scroll {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  position: relative;
+  background: #1a1a1a;
+}
 
+.page {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Welcome screen */
 
 .welcome-screen {
   width: 100vw;
@@ -28,17 +48,59 @@ body {
   justify-content: center;
   gap: 3rem;
   position: relative;
-  background: linear-gradient(180deg, #00bfff 0%, #4fc3f7 40%, #0288d1 100%);
+  background: #1a1a1a;
+}
+
+.spotlight {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  top: 46%;
+  left: 46%;
+  transform: translate(-50%, -60%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rabbit-wrapper {
+  position: relative;
+  z-index: 2;
 }
 
 .rabbit-cake {
   max-width: 320px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  position: relative;
+  z-index: 2;
 }
 
-.rabbit-cake:hover {
-  transform: scale(1.05);
+.click-text {
+  position: absolute;
+  font-family: 'Covered By Your Grace', cursive;
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.click-left {
+  left: -120px;
+  top: 50%;
+  transform: translate(0, -50%) rotate(-85deg);
+  transform-origin: center;
+}
+
+.click-right {
+  right: -120px;
+  top: 50%;
+  transform: translate(0, -50%) rotate(85deg);
+  transform-origin: center;
 }
 
 .continue-button {
@@ -52,6 +114,8 @@ body {
   font-size: 1.3rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+  z-index: 2;
+  position: relative;
 }
 
 .continue-button:hover {
@@ -59,59 +123,129 @@ body {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5);
 }
 
-.cake-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 400px;
-  z-index: 12;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
-  border-radius: 16px;
+/* Cake modal and glow */
+
+.cake-glow-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
+.candle-glow {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.85) 0%,
+    rgba(255, 165, 0, 0.5) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(14px);
+  animation: flicker 2s ease-in-out infinite;
+  z-index: 11;
+}
 
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+.cake-modal {
+  position: relative;
+  max-width: 650px;
+  z-index: 12;
+}
+
+/* Dim overlay */
 
 .dim-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.78);
   z-index: 11;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.app-scroll {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  position: relative;
-}
+/* Month card modal */
 
-.page {
-  min-height: 100vh;
-  scroll-snap-align: start;
+.month-card-modal {
+  position: relative;
+  width: 90%;
+  max-width: 900px;
+  height: 500px;
+  background: #c41e3a;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
   display: flex;
-  align-items: center;
+  overflow: hidden;
+  z-index: 12;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.month-card-left,
+.month-card-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding: 2rem;
-  position: relative;
+  padding: 3rem;
 }
 
-.scroll-hint {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8rem;
-  opacity: 0.85;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.month-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
+.month-card-title {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
 
+.month-card-text {
+  font-family: 'Cedarville Cursive', cursive;
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
 
+/* Page 1 */
+
+.page-1 {
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-1-header {
+  width: 100%;
+  text-align: left;
+  padding-left: 6%;
+  margin-top: -1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.happy-birthday-title {
+  font-family: 'Lavishly Yours', cursive;
+  font-size: 5rem;
+  font-weight: 400;
+}
 
 .page-1-inner {
   width: 100%;
@@ -122,24 +256,30 @@ body {
   gap: 3rem;
 }
 
-.page-1-text h1 {
-  font-size: 3.2rem;
-  font-weight: 800;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+.page-1-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.page-1-text p {
-  margin-top: 1rem;
-  font-size: 1.3rem;
-  max-width: 28rem;
+.page-1-subtitle {
+  font-family: 'Lavishly Yours', cursive;
+  font-size: 3.6rem;
+  font-weight: 400;
+}
+
+.page-1-subsub {
+  font-family: 'Nothing You Could Do', cursive;
+  font-size: 1.4rem;
 }
 
 .page-1-swap {
   flex-shrink: 0;
 }
 
-.card-swap-container {
+/* Card swap visuals */
 
+.card-swap-container {
   position: relative;
   perspective: 900px;
   overflow: visible;
@@ -150,8 +290,8 @@ body {
   top: 50%;
   left: 50%;
   border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background: #ffd700;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: #c41e3a;
   transform-style: preserve-3d;
   will-change: transform;
   backface-visibility: hidden;
@@ -159,33 +299,32 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
-  cursor: pointer;
-  transition: transform 0.15s ease;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+  transition: filter 0.2s ease;
 }
 
 .card-swap-card:hover {
-
-
-  transform: scale(1.02);
+  filter: brightness(1.07);
 }
 
 .month-card h3 {
-
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
   font-size: 2.4rem;
-  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.2rem;
-  color: #333;
-  text-shadow: 0 3px 6px rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.12rem;
+  color: #fff;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
 }
 
-
+/* Page 2 */
 
 .page-2 {
   max-width: 1100px;
   margin: 0 auto;
   gap: 3rem;
+  background: url('/black.jfif') center/cover no-repeat;
+  border-radius: 20px;
+  padding: 3rem;
 }
 
 .page-2-left {
@@ -193,14 +332,16 @@ body {
 }
 
 .page-2-left h2 {
-  font-size: 2.6rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  font-family: 'Lavishly Yours', cursive;
+  font-size: 3.6rem;
+  font-weight: 400;
+  margin-bottom: 0.8rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
 }
 
 .page-2-left p {
-  font-size: 1.3rem;
-  max-width: 28rem;
+  font-family: 'Nothing You Could Do', cursive;
+  font-size: 1.4rem;
 }
 
 .page-2-right {
@@ -208,14 +349,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
+
+/* Infinite memories canvas – big & clipped */
 
 #infinite-grid-menu-canvas {
   cursor: grab;
-  width: 560px;
-  height: 320px;
-  overflow: hidden;
-  position: relative;
+  width: 900px;
+  height: 600px;
   outline: none;
 }
 
@@ -223,8 +365,7 @@ body {
   cursor: grabbing;
 }
 
-
-
+/* Page 3 */
 
 .page-3 {
   display: flex;
@@ -233,19 +374,18 @@ body {
 }
 
 .page-3-dark {
-
-  background: radial-gradient(circle at center, rgba(3, 105, 161, 1) 0%, rgba(15, 23, 42, 1) 70%);
+  background: radial-gradient(circle at center, rgba(40, 40, 40, 1) 0%, rgba(10, 10, 10, 1) 70%);
 }
 
 .stepper-container {
   width: 90%;
   max-width: 600px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   padding: 3rem 2.5rem;
   backdrop-filter: blur(18px);
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.8);
   transition: opacity 0.3s ease;
 }
 
@@ -262,18 +402,19 @@ body {
 }
 
 .stepper-text {
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-family: 'Lavishly Yours', cursive;
+  font-size: 3rem;
+  font-weight: 400;
   text-align: center;
-  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
 }
 
 .stepper-input {
   width: 100%;
   padding: 1rem 1.4rem;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  background: rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
   color: #fff;
   font-size: 1.1rem;
   outline: none;
@@ -281,12 +422,10 @@ body {
 }
 
 .stepper-input::placeholder {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .stepper-input-focused {
-
-
   position: fixed;
   top: 50%;
   left: 50%;
@@ -295,19 +434,19 @@ body {
   max-width: 560px;
   padding: 1.2rem 1.8rem;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(24px);
   color: #fff;
   font-size: 1.2rem;
   outline: none;
   text-align: center;
   z-index: 12;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
 }
 
 .stepper-input-focused::placeholder {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .stepper-button {
@@ -319,24 +458,26 @@ body {
   color: #333;
   font-weight: 700;
   font-size: 1.1rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .stepper-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.8);
 }
+
+/* Stack */
 
 .stack-box {
   width: 90%;
   max-width: 560px;
   height: 360px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   padding: 2rem;
-  border: 2px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.9);
   opacity: 0;
   transform: scale(0.9);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -378,7 +519,7 @@ body {
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
 }
 
 .stack-card-top {
@@ -401,26 +542,30 @@ body {
   -webkit-user-drag: none;
 }
 
-
+/* Responsive */
 
 @media (max-width: 900px) {
+  .page-1 {
+    padding-top: 3rem;
+  }
+
+  .happy-birthday-title {
+    font-size: 3.8rem;
+  }
+
   .page-1-inner {
     flex-direction: column;
     text-align: center;
   }
 
-
-
-  .page-1-text h1 {
-    font-size: 2.4rem;
-  }
-
-  .page-1-text p {
-    margin: 0 auto;
+  .page-1-text {
+    align-items: center;
   }
 
   .page-2 {
     flex-direction: column;
+    max-width: 100%;
+    border-radius: 0;
   }
 
   .page-2-left,
@@ -429,11 +574,28 @@ body {
   }
 
   .page-2-left h2 {
-    font-size: 2.1rem;
+    font-size: 2.8rem;
   }
 
   #infinite-grid-menu-canvas {
     width: 100%;
-    height: 280px;
+    height: 400px;
+  }
+
+  .month-card-modal {
+    flex-direction: column;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .click-left {
+    left: -80px;
+    font-size: 2rem;
+  }
+
+  .click-right {
+    right: -80px;
+    font-size: 2rem;
   }
 }
