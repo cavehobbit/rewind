@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Covered+By+Your+Grace&family=Lavishly+Yours&family=Molle:ital@1&family=Nothing+You+Could+Do&display=swap');
 
 * {
@@ -12,7 +11,7 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  overflow: hidden; 
+  overflow: hidden;
   background: #1a1a1a;
 }
 
@@ -21,7 +20,6 @@ body {
   color: #ffffff;
 }
 
-
 .app-scroll {
   height: 100vh;
   overflow-y: auto;
@@ -29,7 +27,6 @@ body {
   position: relative;
   scroll-behavior: smooth;
 }
-
 
 .app-bg-active {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/black.jfif');
@@ -48,7 +45,6 @@ body {
   padding: 2rem;
   position: relative;
 }
-
 
 .welcome-screen {
   width: 100vw;
@@ -139,8 +135,6 @@ body {
   background: #fff;
 }
 
-
-
 .dim-overlay {
   position: fixed;
   inset: 0;
@@ -184,7 +178,7 @@ body {
   width: 90%;
   max-width: 900px;
   height: 500px;
-  background: #c41e3a; /* Deep Red */
+  background: #c41e3a;
   border-radius: 20px;
   display: flex;
   overflow: hidden;
@@ -224,7 +218,6 @@ body {
   font-size: 1.5rem;
   line-height: 1.6;
 }
-
 
 .page-1-header {
   width: 100%;
@@ -268,31 +261,85 @@ body {
   color: white;
 }
 
+.page-2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: radial-gradient(circle at center, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 1) 70%);
+  background-attachment: scroll;
+  border-radius: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.page-2::before {
+  content: '';
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  right: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-2-left {
+  flex: 1;
+  max-width: 400px;
+  z-index: 2;
+  position: relative;
+}
+
 .page-2-left h2 {
   font-family: 'Lavishly Yours', cursive;
   font-size: 4rem;
   margin-bottom: 1rem;
+  color: #ffd700;
+  text-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
 }
 
 .page-2-left p {
   font-family: 'Nothing You Could Do', cursive;
   font-size: 1.4rem;
-  opacity: 0.8;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .page-2-right {
   flex: 1;
+  width: 600px;
   height: 600px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  border-radius: 20px;
+  overflow: visible;
+  z-index: 2;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #infinite-grid-menu-canvas {
+  display: block;
   width: 100% !important;
   height: 100% !important;
   cursor: grab;
   outline: none;
+  touch-action: none;
+  border-radius: 16px;
+}
+
+#infinite-grid-menu-canvas:active {
+  cursor: grabbing;
+}
+
+.page-3-dark {
+  background: radial-gradient(circle at center, rgba(40, 40, 40, 1) 0%, rgba(10, 10, 10, 1) 70%);
 }
 
 .stepper-container {
@@ -312,7 +359,7 @@ body {
   margin-bottom: 2rem;
 }
 
-.stepper-input, .stepper-input-focused {
+.stepper-input {
   width: 100%;
   padding: 1rem;
   border-radius: 50px;
@@ -333,6 +380,13 @@ body {
   max-width: 600px;
   z-index: 3000;
   background: rgba(20,20,20,0.95);
+  padding: 1rem;
+  border-radius: 50px;
+  border: 2px solid #ffd700;
+  color: white;
+  text-align: center;
+  font-size: 1.1rem;
+  outline: none;
 }
 
 .stepper-button {
@@ -343,6 +397,11 @@ body {
   background: #ffd700;
   font-weight: bold;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stepper-button:hover {
+  transform: scale(1.05);
 }
 
 .stack-box {
@@ -359,24 +418,189 @@ body {
   transform: translateY(0);
 }
 
+.stack-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 600px;
+}
+
+.stack-card-rotate {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.stack-card-rotate-disabled {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
 .stack-card {
   border: 8px solid white;
   background: white;
   border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+}
+
+.stack-card-top {
+  filter: none;
+  opacity: 1;
+  z-index: 10;
+}
+
+.stack-card-shadow {
+  filter: brightness(0.4) blur(1px);
+  opacity: 0.5;
 }
 
 .stack-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @media (max-width: 900px) {
-  .happy-birthday-title { font-size: 4rem; }
-  .page-1-inner { flex-direction: column; gap: 4rem; }
-  .month-card-modal { flex-direction: column; height: auto; max-height: 90vh; }
-  .month-card-left, .month-card-right { padding: 1.5rem; }
-  .month-card-title { font-size: 2.5rem; }
-  .page-2 { flex-direction: column; text-align: center; }
-  .page-2-right { height: 400px; width: 100%; }
+  .happy-birthday-title { 
+    font-size: 4rem; 
+  }
+  
+  .page-1-inner { 
+    flex-direction: column; 
+    gap: 4rem; 
+  }
+  
+  .month-card-modal { 
+    flex-direction: column; 
+    height: auto; 
+    max-height: 90vh; 
+  }
+  
+  .month-card-left, .month-card-right { 
+    padding: 1.5rem; 
+  }
+  
+  .month-card-title { 
+    font-size: 2.5rem; 
+  }
+  
+  .page-2 {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .page-2::before {
+    width: 400px;
+    height: 400px;
+    right: 50%;
+    transform: translate(50%, -50%);
+  }
+  
+  .page-2-left {
+    max-width: 100%;
+  }
+
+  .page-2-left h2 {
+    font-size: 3rem;
+  }
+
+  .page-2-right {
+    width: 100%;
+    height: 450px;
+    max-width: 500px;
+  }
+
+  #infinite-grid-menu-canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .click-left {
+    left: -80px;
+    font-size: 2rem;
+  }
+
+  .click-right {
+    right: -80px;
+    font-size: 2rem;
+  }
+}
+
+.page-2 {
+  position: relative;
+}
+
+.page-2-right {
+  position: relative;
+  z-index: 5;
+}
+
+#infinite-grid-menu-canvas {
+  position: relative;
+  z-index: 6;
+}
+
+
+.page-2 {
+  background: #000 !important;
+  background-image: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.page-2-left {
+  display: none;
+}
+
+.page-2-right {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#infinite-grid-menu-canvas {
+  width: 80vmin;
+  height: 80vmin;
+  max-width: 800px;
+  max-height: 800px;
+  display: block;
+  cursor: grab;
+}
+
+
+
+
+
+
+.page-2 {
+  background: #000 !important;
+  background-image: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.page-2-right {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

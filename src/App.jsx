@@ -150,8 +150,8 @@ function MonthCardModal({ month, index, onClose }) {
     January: 'I hope January gave you a soft start — slow mornings, quiet wins, and reminders that you made it into another year.',
     February: 'I hope February wrapped you in warmth — from friends, from love, and from the way you kept choosing to stay.',
     March: "I hope March nudged you forward — into new risks, new habits, and proof that you're stronger than you think.",
-    April: 'I hope April surprised you — with tiny joys, dumb inside jokes, and moments you didn’t see coming.',
-    June: 'I hope June brought lighter days, where the air felt easier to breathe and your thoughts were a little kinder.',
+    April: "I hope April surprised you — with tiny joys, dumb inside jokes, and moments you didn't see coming.",
+    June: "I hope June brought lighter days, where the air felt easier to breathe and your thoughts were a little kinder.",
     July: 'I hope July was loud in the best way — laughter that echoed, memories that stuck, and a heart that felt more alive.'
   };
   const cardData = { text: monthTextMap[month] ?? `...`, image: `/${monthImageMap[month]}` };
@@ -352,42 +352,141 @@ class ArcballControl {
 
 class InfiniteGridMenu {
   constructor(canvas, items, scale = 1.0) {
-    this.canvas = canvas; this.gl = canvas.getContext('webgl2'); this.items = items; this.scale = scale;
-    this.init(); this.run();
+    this.canvas = canvas;
+    this.gl = canvas.getContext('webgl2', { antialias: true, alpha: true });
+    if (!this.gl) {
+      console.error('WebGL2 not supported');
+      return;
+    }
+    this.items = items;
+    this.scale = scale;
+    this.init();
+    this.run();
   }
   init() {
     let gl = this.gl;
-    let createS = (t, s) => { let sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
-    this.prog = gl.createProgram(); gl.attachShader(this.prog, createS(gl.VERTEX_SHADER, discVert)); gl.attachShader(this.prog, createS(gl.FRAGMENT_SHADER, discFrag)); gl.linkProgram(this.prog);
-    this.geo = new DiscGeometry(32, 1).data; this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao);
-    let b = (d, l, n) => { let buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, d, gl.STATIC_DRAW); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, n, gl.FLOAT, false, 0, 0); };
-    b(this.geo.vertices, 0, 3); b(this.geo.uvs, 1, 2);
-    let ib = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.geo.indices, gl.STATIC_DRAW);
+    let createS = (t, s) => {
+      let sh = gl.createShader(t);
+      gl.shaderSource(sh, s);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(sh));
+      }
+      return sh;
+    };
+    this.prog = gl.createProgram();
+    gl.attachShader(this.prog, createS(gl.VERTEX_SHADER, discVert));
+    gl.attachShader(this.prog, createS(gl.FRAGMENT_SHADER, discFrag));
+    gl.linkProgram(this.prog);
+    if (!gl.getProgramParameter(this.prog, gl.LINK_STATUS)) {
+      console.error(gl.getProgramInfoLog(this.prog));
+    }
+
+    this.geo = new DiscGeometry(32, 1).data;
+    this.vao = gl.createVertexArray();
+    gl.bindVertexArray(this.vao);
+
+    let b = (d, l, n) => {
+      let buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, d, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(l);
+      gl.vertexAttribPointer(l, n, gl.FLOAT, false, 0, 0);
+    };
+    b(this.geo.vertices, 0, 3);
+    b(this.geo.uvs, 2, 2);
+
+    let ib = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.geo.indices, gl.STATIC_DRAW);
+
     this.ico = new IcosahedronGeometry().subdivide(1).spherize(2);
-    this.instCount = this.ico.vertices.length; this.instData = new Float32Array(this.instCount * 16);
-    this.instBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf); gl.bufferData(gl.ARRAY_BUFFER, this.instData, gl.DYNAMIC_DRAW);
-    for (let i = 0; i < 4; i++) { gl.enableVertexAttribArray(3 + i); gl.vertexAttribPointer(3 + i, 4, gl.FLOAT, false, 64, i * 16); gl.vertexAttribDivisor(3 + i, 1); }
-    this.tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.tex);
-    let atlas = document.createElement('canvas'); atlas.width = atlas.height = 1024; let ctx = atlas.getContext('2d');
-    this.items.forEach((item, i) => { let img = new Image(); img.src = item.image; img.onload = () => { ctx.drawImage(img, (i%2)*512, Math.floor(i/2)*512, 512, 512); gl.bindTexture(gl.TEXTURE_2D, this.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas); gl.generateMipmap(gl.TEXTURE_2D); }; });
+    this.instCount = this.ico.vertices.length;
+    this.instData = new Float32Array(this.instCount * 16);
+    this.instBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, this.instData, gl.DYNAMIC_DRAW);
+
+    const bytesPerMatrix = 16 * 4; // 16 floats * 4 bytes
+for (let i = 0; i < 4; i++) {
+  const loc = 3 + i;
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(
+    loc,
+    4,
+    gl.FLOAT,
+    false,
+    bytesPerMatrix,
+    i * 4 * 4 // 4 floats per column * 4 bytes
+  );
+  gl.vertexAttribDivisor(loc, 1);
+}
+
+    this.tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+
+    let atlasSize = Math.ceil(Math.sqrt(this.items.length));
+    let atlas = document.createElement('canvas');
+    atlas.width = atlas.height = atlasSize * 512;
+    let ctx = atlas.getContext('2d');
+
+    let loaded = 0;
+    this.items.forEach((item, i) => {
+      let img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        let x = (i % atlasSize) * 512;
+        let y = Math.floor(i / atlasSize) * 512;
+        ctx.drawImage(img, x, y, 512, 512);
+        loaded++;
+        if (loaded === this.items.length) {
+          gl.bindTexture(gl.TEXTURE_2D, this.tex);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+          gl.generateMipmap(gl.TEXTURE_2D);
+        }
+      };
+      img.src = item.image;
+    });
+
     this.control = new ArcballControl(this.canvas);
     this.view = mat4.lookAt(mat4.create(), [0, 0, 6], [0, 0, 0], [0, 1, 0]);
-    this.proj = mat4.perspective(mat4.create(), Math.PI / 4, gl.canvas.width / gl.canvas.height, 0.1, 100);
+    this.proj = mat4.perspective(mat4.create(), Math.PI / 4, this.canvas.width / this.canvas.height, 0.1, 100);
   }
+
   run() {
-    let gl = this.gl; gl.viewport(0, 0, gl.canvas.width, gl.canvas.height); gl.clearColor(0,0,0,0); gl.enable(gl.DEPTH_TEST);
+    let gl = this.gl;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     const loop = () => {
-      this.control.update(); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); gl.useProgram(this.prog);
+      this.control.update();
+      gl.clearColor(0.1, 0.1, 0.1, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(this.prog);
+
       this.ico.vertices.forEach((v, i) => {
-        let m = mat4.create(); let p = vec3.transformQuat(vec3.create(), v.position, this.control.orientation);
-        mat4.translate(m, m, p); mat4.scale(m, m, [0.4, 0.4, 0.4]); this.instData.set(m, i * 16);
+        let m = mat4.create();
+        let p = vec3.transformQuat(vec3.create(), v.position, this.control.orientation);
+        mat4.translate(m, m, p);
+        mat4.scale(m, m, [0.4, 0.4, 0.4]);
+        this.instData.set(m, i * 16);
       });
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.instData);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.instData);
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uWorldMatrix'), false, mat4.create());
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uViewMatrix'), false, this.view);
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uProjectionMatrix'), false, this.proj);
       gl.uniform4f(gl.getUniformLocation(this.prog, 'uRotationAxisVelocity'), this.control.rotationAxis[0], this.control.rotationAxis[1], this.control.rotationAxis[2], this.control.rotationVelocity);
-      gl.uniform1i(gl.getUniformLocation(this.prog, 'uAtlasSize'), 2); gl.bindVertexArray(this.vao); gl.drawElementsInstanced(gl.TRIANGLES, this.geo.indices.length, gl.UNSIGNED_SHORT, 0, this.instCount);
+      gl.uniform1i(gl.getUniformLocation(this.prog, 'uAtlasSize'), Math.ceil(Math.sqrt(this.items.length)));
+      gl.uniform1i(gl.getUniformLocation(this.prog, 'uItemCount'), this.items.length);
+      gl.bindVertexArray(this.vao);
+      gl.drawElementsInstanced(gl.TRIANGLES, this.geo.indices.length, gl.UNSIGNED_SHORT, 0, this.instCount);
       requestAnimationFrame(loop);
     };
     loop();
@@ -396,7 +495,18 @@ class InfiniteGridMenu {
 
 function InfiniteMenu({ items = [] }) {
   const ref = useRef();
-  useEffect(() => { if (ref.current) new InfiniteGridMenu(ref.current, items); }, [items]);
+  useEffect(() => {
+    if (ref.current && items.length > 0) {
+      new InfiniteGridMenu(
+        ref.current,
+        items,
+        () => {},           // onActiveItemChange
+        () => {},           // onMovementChange  
+        (sk) => sk.run(),   // onInit
+        1.0                 // scale
+      );
+    }
+  }, [items]);
   return <canvas ref={ref} width={800} height={600} id="infinite-grid-menu-canvas" />;
 }
 
@@ -433,9 +543,10 @@ export default function App() {
         <div className="page-1-inner"><div className="page-1-text" /><div className="page-1-swap"><CardSwap onCardClick={i => setSelected({ m: months[i], i })}>{months.map((m, i) => <Card key={i} customClass="month-card"><h3>{m}</h3></Card>)}</CardSwap></div></div>
       </section>
       <section className="page page-2">
-        <div className="page-2-left"><h2>Memories</h2><p>Drag to explore</p></div>
-        <div className="page-2-right"><InfiniteMenu items={infiniteItems} /></div>
-      </section>
+  <div className="page-2-right">
+    <InfiniteMenu items={infiniteItems} />
+  </div>
+</section>
       <section className={`page page-3 ${showStack ? 'page-3-dark' : ''}`}>
         {!showStack ? <Stepper onComplete={() => setShowStack(true)} /> : <div className="stack-box fade-in"><Stack cards={stackCards} randomRotation sensitivity={180} /></div>}
       </section>
