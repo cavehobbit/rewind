@@ -6,10 +6,13 @@
   box-sizing: border-box;
 }
 
+
+
 html,
 body,
 #root {
   height: 100%;
+
   width: 100%;
   overflow: hidden;
   background: #1a1a1a;
@@ -29,6 +32,7 @@ body {
 }
 
 .app-bg-active {
+
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/black.jfif');
   background-size: cover;
   background-position: center;
@@ -38,15 +42,21 @@ body {
 
 .page {
   min-height: 100vh;
+  width: 100%;
   scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   position: relative;
+
 }
 
+
+/*  start scren  */
+
 .welcome-screen {
+
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -58,6 +68,9 @@ body {
   background: #1a1a1a;
   z-index: 100;
 }
+
+
+
 
 .spotlight {
   position: absolute;
@@ -95,6 +108,7 @@ body {
 }
 
 .click-text {
+
   position: absolute;
   font-family: 'Covered By Your Grace', cursive;
   font-size: 2.5rem;
@@ -115,7 +129,10 @@ body {
   transform: translate(0, -50%) rotate(85deg);
 }
 
+/*fixed da page error*/
+
 .continue-button {
+
   padding: 1rem 3rem;
   border-radius: 999px;
   border: none;
@@ -125,9 +142,11 @@ body {
   font-weight: 700;
   font-size: 1.3rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
   transition: all 0.2s ease;
   z-index: 2;
 }
+
 
 .continue-button:hover {
   transform: translateY(-3px) scale(1.05);
@@ -136,6 +155,7 @@ body {
 }
 
 .dim-overlay {
+
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
@@ -146,11 +166,15 @@ body {
   backdrop-filter: blur(8px);
 }
 
+
 .cake-glow-wrapper {
+
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+
+
 }
 
 .candle-glow {
@@ -163,10 +187,14 @@ body {
   animation: flicker 1.5s infinite;
 }
 
+
 @keyframes flicker {
   0%, 100% { opacity: 0.8; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.2); }
 }
+
+
+
 
 .cake-modal {
   max-width: 400px;
@@ -177,6 +205,7 @@ body {
   position: relative;
   width: 90%;
   max-width: 900px;
+
   height: 500px;
   background: #c41e3a;
   border-radius: 20px;
@@ -192,6 +221,7 @@ body {
 }
 
 .month-card-left, .month-card-right {
+
   flex: 1;
   padding: 3rem;
   display: flex;
@@ -199,7 +229,10 @@ body {
   justify-content: center;
 }
 
+
+
 .month-card-image {
+
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -209,6 +242,7 @@ body {
 
 .month-card-title {
   font-family: "Comic Sans MS", cursive;
+
   font-size: 3.5rem;
   margin-bottom: 1rem;
 }
@@ -221,12 +255,14 @@ body {
 
 .page-1-header {
   width: 100%;
+
   padding-left: 5%;
   margin-bottom: 2rem;
 }
 
 .happy-birthday-title {
   font-family: 'Lavishly Yours', cursive;
+
   font-size: 6rem;
   color: #ffd700;
   text-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -241,10 +277,12 @@ body {
 }
 
 .card-swap-container {
+
   position: relative;
 }
 
 .card-swap-card {
+
   position: absolute;
   background: #c41e3a;
   border-radius: 16px;
@@ -256,6 +294,7 @@ body {
 }
 
 .month-card h3 {
+
   font-family: "Comic Sans MS", cursive;
   font-size: 2.2rem;
   color: white;
@@ -267,33 +306,20 @@ body {
   justify-content: space-between;
   gap: 3rem;
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  background: radial-gradient(circle at center, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 1) 70%);
-  background-attachment: scroll;
-  border-radius: 0;
+  background: transparent;
   position: relative;
   z-index: 1;
 }
 
-.page-2::before {
-  content: '';
-  position: absolute;
-  width: 700px;
-  height: 700px;
-  right: 10%;
-  top: 50%;
-  transform: translateY(-50%);
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .page-2-left {
+
   flex: 1;
   max-width: 400px;
   z-index: 2;
   position: relative;
+  display: block;
 }
 
 .page-2-left h2 {
@@ -302,6 +328,7 @@ body {
   margin-bottom: 1rem;
   color: #ffd700;
   text-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+
 }
 
 .page-2-left p {
@@ -311,20 +338,23 @@ body {
   color: rgba(255, 255, 255, 0.85);
 }
 
+
 .page-2-right {
+
   flex: 1;
   width: 600px;
   height: 600px;
   position: relative;
-  border-radius: 20px;
-  overflow: visible;
   z-index: 2;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
 }
 
 #infinite-grid-menu-canvas {
+
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -332,7 +362,11 @@ body {
   outline: none;
   touch-action: none;
   border-radius: 16px;
+  position: relative;
+  z-index: 6;
+
 }
+
 
 #infinite-grid-menu-canvas:active {
   cursor: grabbing;
@@ -341,6 +375,7 @@ body {
 .page-3-dark {
   background: radial-gradient(circle at center, rgba(40, 40, 40, 1) 0%, rgba(10, 10, 10, 1) 70%);
 }
+
 
 .stepper-container {
   width: 100%;
@@ -358,6 +393,8 @@ body {
   font-size: 3rem;
   margin-bottom: 2rem;
 }
+
+
 
 .stepper-input {
   width: 100%;
@@ -404,6 +441,9 @@ body {
   transform: scale(1.05);
 }
 
+
+/*crd rotate*/
+
 .stack-box {
   width: 100%;
   max-width: 450px;
@@ -414,8 +454,10 @@ body {
 }
 
 .stack-box.fade-in {
+
   opacity: 1;
   transform: translateY(0);
+
 }
 
 .stack-container {
@@ -423,6 +465,7 @@ body {
   width: 100%;
   height: 100%;
   perspective: 600px;
+
 }
 
 .stack-card-rotate {
@@ -439,6 +482,9 @@ body {
   cursor: pointer;
 }
 
+
+
+
 .stack-card {
   border: 8px solid white;
   background: white;
@@ -451,18 +497,27 @@ body {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
 }
 
+
 .stack-card-top {
   filter: none;
   opacity: 1;
   z-index: 10;
 }
 
+
+
+
 .stack-card-shadow {
   filter: brightness(0.4) blur(1px);
   opacity: 0.5;
+
+
 }
 
 .stack-card-image {
+
+
+
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -476,18 +531,26 @@ body {
     font-size: 4rem; 
   }
   
+
+
   .page-1-inner { 
+
+
     flex-direction: column; 
     gap: 4rem; 
   }
+
+
   
   .month-card-modal { 
+
     flex-direction: column; 
     height: auto; 
     max-height: 90vh; 
   }
   
   .month-card-left, .month-card-right { 
+
     padding: 1.5rem; 
   }
   
@@ -495,17 +558,13 @@ body {
     font-size: 2.5rem; 
   }
   
+
+  /*page 2 eror fixed*/
   .page-2 {
+
     flex-direction: column;
     text-align: center;
     padding: 2rem;
-  }
-
-  .page-2::before {
-    width: 400px;
-    height: 400px;
-    right: 50%;
-    transform: translate(50%, -50%);
   }
   
   .page-2-left {
@@ -525,6 +584,7 @@ body {
   #infinite-grid-menu-canvas {
     width: 100% !important;
     height: 100% !important;
+
   }
 
   .click-left {
@@ -533,76 +593,8 @@ body {
   }
 
   .click-right {
+
     right: -80px;
     font-size: 2rem;
   }
-}
-
-.page-2 {
-  position: relative;
-}
-
-.page-2-right {
-  position: relative;
-  z-index: 5;
-}
-
-
-
-#infinite-grid-menu-canvas {
-  position: relative;
-  z-index: 6;
-}
-
-
-.page-2 {
-  background: #000 !important;
-  background-image: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.page-2-left {
-  display: none;
-}
-
-.page-2-right {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#infinite-grid-menu-canvas {
-  width: 80vmin;
-  height: 80vmin;
-  max-width: 800px;
-  max-height: 800px;
-  display: block;
-  cursor: grab;
-}
-
-
-
-
-
-
-.page-2 {
-  background: #000 !important;
-  background-image: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.page-2-right {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
