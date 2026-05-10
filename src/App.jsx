@@ -266,8 +266,9 @@ precision highp float;
 uniform sampler2D uTex; uniform int uItemCount, uAtlasSize;
 out vec4 outColor; in vec2 vUvs; in float vAlpha; flat in int vInstanceId;
 void main() {
+    int itemIndex = vInstanceId % uItemCount;
     vec2 cellSize = vec2(1.0) / vec2(float(uAtlasSize));
-    vec2 cellOffset = vec2(float(vInstanceId % uAtlasSize), float(vInstanceId / uAtlasSize)) * cellSize;
+    vec2 cellOffset = vec2(float(itemIndex % uAtlasSize), float(itemIndex / uAtlasSize)) * cellSize;
     outColor = texture(uTex, vec2(vUvs.x, 1.0 - vUvs.y) * cellSize + cellOffset);
     outColor.a *= vAlpha;
 }`;
@@ -324,21 +325,36 @@ class IcosahedronGeometry extends Geometry {
 
 class ArcballControl {
   constructor(canvas) {
-    this.canvas = canvas; this.orientation = quat.create(); this.rotationAxis = vec3.fromValues(1, 0, 0); this.rotationVelocity = 0;
-    this.pPos = vec2.create(); this.prevPPos = vec2.create(); this.isDown = false; this.pointerRotation = quat.create();
-    canvas.addEventListener('pointerdown', e => { this.isDown = true; vec2.set(this.pPos, e.clientX, e.clientY); vec2.copy(this.prevPPos, this.pPos); });
+    this.canvas = canvas; 
+    this.orientation = quat.create(); 
+    this.rotationAxis = vec3.fromValues(1, 0, 0); 
+    this.rotationVelocity = 0;
+    this.pPos = vec2.create(); 
+    this.prevPPos = vec2.create(); 
+    this.isDown = false; 
+    this.pointerRotation = quat.create();
+    canvas.addEventListener('pointerdown', e => { 
+      this.isDown = true; 
+      vec2.set(this.pPos, e.clientX, e.clientY); 
+      vec2.copy(this.prevPPos, this.pPos); 
+    });
     window.addEventListener('pointerup', () => this.isDown = false);
-    canvas.addEventListener('pointermove', e => { if (this.isDown) vec2.set(this.pPos, e.clientX, e.clientY); });
+    canvas.addEventListener('pointermove', e => { 
+      if (this.isDown) vec2.set(this.pPos, e.clientX, e.clientY); 
+    });
+    canvas.style.touchAction = 'none';
   }
   update() {
     if (this.isDown) {
       let p = this.project(this.pPos), q = this.project(this.prevPPos);
-      let axis = vec3.cross(vec3.create(), p, q); vec3.normalize(axis, axis);
+      let axis = vec3.cross(vec3.create(), p, q); 
+      vec3.normalize(axis, axis);
       let angle = Math.acos(Math.max(-1, Math.min(1, vec3.dot(p, q)))) * 2;
       quat.setAxisAngle(this.pointerRotation, axis, angle);
       quat.multiply(this.orientation, this.pointerRotation, this.orientation);
       vec2.copy(this.prevPPos, this.pPos);
-      this.rotationVelocity = angle; vec3.copy(this.rotationAxis, axis);
+      this.rotationVelocity = angle; 
+      vec3.copy(this.rotationAxis, axis);
     } else {
       this.rotationVelocity *= 0.95;
     }
@@ -351,18 +367,21 @@ class ArcballControl {
 }
 
 class InfiniteGridMenu {
-  constructor(canvas, items, scale = 1.0) {
+  constructor(canvas, items) {
     this.canvas = canvas;
-    this.gl = canvas.getContext('webgl2', { antialias: true, alpha: true });
+    this.gl = canvas.getContext('webgl2', { 
+      antialias: true, 
+      alpha: true, 
+      premultipliedAlpha: false 
+    });
     if (!this.gl) {
       console.error('WebGL2 not supported');
       return;
     }
     this.items = items;
-    this.scale = scale;
     this.init();
-    this.run();
   }
+  
   init() {
     let gl = this.gl;
     let createS = (t, s) => {
@@ -374,6 +393,7 @@ class InfiniteGridMenu {
       }
       return sh;
     };
+    
     this.prog = gl.createProgram();
     gl.attachShader(this.prog, createS(gl.VERTEX_SHADER, discVert));
     gl.attachShader(this.prog, createS(gl.FRAGMENT_SHADER, discFrag));
@@ -382,7 +402,7 @@ class InfiniteGridMenu {
       console.error(gl.getProgramInfoLog(this.prog));
     }
 
-    this.geo = new DiscGeometry(32, 1).data;
+    this.geo = new DiscGeometry(56, 1).data;
     this.vao = gl.createVertexArray();
     gl.bindVertexArray(this.vao);
 
@@ -407,20 +427,13 @@ class InfiniteGridMenu {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf);
     gl.bufferData(gl.ARRAY_BUFFER, this.instData, gl.DYNAMIC_DRAW);
 
-    const bytesPerMatrix = 16 * 4; // 16 floats * 4 bytes
-for (let i = 0; i < 4; i++) {
-  const loc = 3 + i;
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(
-    loc,
-    4,
-    gl.FLOAT,
-    false,
-    bytesPerMatrix,
-    i * 4 * 4 // 4 floats per column * 4 bytes
-  );
-  gl.vertexAttribDivisor(loc, 1);
-}
+    const bytesPerMatrix = 16 * 4;
+    for (let i = 0; i < 4; i++) {
+      const loc = 3 + i;
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, bytesPerMatrix, i * 4 * 4);
+      gl.vertexAttribDivisor(loc, 1);
+    }
 
     this.tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.tex);
@@ -428,9 +441,9 @@ for (let i = 0; i < 4; i++) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
 
-    let atlasSize = Math.ceil(Math.sqrt(this.items.length));
+    this.atlasSize = Math.ceil(Math.sqrt(this.items.length));
     let atlas = document.createElement('canvas');
-    atlas.width = atlas.height = atlasSize * 512;
+    atlas.width = atlas.height = this.atlasSize * 512;
     let ctx = atlas.getContext('2d');
 
     let loaded = 0;
@@ -438,8 +451,8 @@ for (let i = 0; i < 4; i++) {
       let img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        let x = (i % atlasSize) * 512;
-        let y = Math.floor(i / atlasSize) * 512;
+        let x = (i % this.atlasSize) * 512;
+        let y = Math.floor(i / this.atlasSize) * 512;
         ctx.drawImage(img, x, y, 512, 512);
         loaded++;
         if (loaded === this.items.length) {
@@ -453,40 +466,69 @@ for (let i = 0; i < 4; i++) {
 
     this.control = new ArcballControl(this.canvas);
     this.view = mat4.lookAt(mat4.create(), [0, 0, 6], [0, 0, 0], [0, 1, 0]);
-    this.proj = mat4.perspective(mat4.create(), Math.PI / 4, this.canvas.width / this.canvas.height, 0.1, 100);
+    this.updateProjection();
+    this.run();
+  }
+
+  updateProjection() {
+    const aspect = this.canvas.width / this.canvas.height;
+    this.proj = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 100);
+  }
+
+  resize() {
+    const dpr = Math.min(2, window.devicePixelRatio);
+    const width = Math.round(this.canvas.clientWidth * dpr);
+    const height = Math.round(this.canvas.clientHeight * dpr);
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+      this.updateProjection();
+      this.gl.viewport(0, 0, width, height);
+    }
   }
 
   run() {
     let gl = this.gl;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
     const loop = () => {
+      this.resize();
       this.control.update();
-      gl.clearColor(0.1, 0.1, 0.1, 1);
+      
+      gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(this.prog);
 
       this.ico.vertices.forEach((v, i) => {
+        let worldPos = vec3.transformQuat(vec3.create(), v.position, this.control.orientation);
         let m = mat4.create();
-        let p = vec3.transformQuat(vec3.create(), v.position, this.control.orientation);
-        mat4.translate(m, m, p);
-        mat4.scale(m, m, [0.4, 0.4, 0.4]);
+        mat4.translate(m, m, vec3.negate(vec3.create(), worldPos));
+        let lookMat = mat4.targetTo(mat4.create(), [0,0,0], worldPos, [0,1,0]);
+        mat4.multiply(m, m, lookMat);
+        mat4.scale(m, m, [0.25, 0.25, 0.25]);
+        mat4.translate(m, m, [0, 0, -2]);
         this.instData.set(m, i * 16);
       });
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.instBuf);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.instData);
+      
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uWorldMatrix'), false, mat4.create());
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uViewMatrix'), false, this.view);
       gl.uniformMatrix4fv(gl.getUniformLocation(this.prog, 'uProjectionMatrix'), false, this.proj);
-      gl.uniform4f(gl.getUniformLocation(this.prog, 'uRotationAxisVelocity'), this.control.rotationAxis[0], this.control.rotationAxis[1], this.control.rotationAxis[2], this.control.rotationVelocity);
-      gl.uniform1i(gl.getUniformLocation(this.prog, 'uAtlasSize'), Math.ceil(Math.sqrt(this.items.length)));
+      gl.uniform4f(gl.getUniformLocation(this.prog, 'uRotationAxisVelocity'), 
+        this.control.rotationAxis[0], 
+        this.control.rotationAxis[1], 
+        this.control.rotationAxis[2], 
+        this.control.rotationVelocity
+      );
+      gl.uniform1i(gl.getUniformLocation(this.prog, 'uAtlasSize'), this.atlasSize);
       gl.uniform1i(gl.getUniformLocation(this.prog, 'uItemCount'), this.items.length);
+      
       gl.bindVertexArray(this.vao);
       gl.drawElementsInstanced(gl.TRIANGLES, this.geo.indices.length, gl.UNSIGNED_SHORT, 0, this.instCount);
+      
       requestAnimationFrame(loop);
     };
     loop();
@@ -495,27 +537,22 @@ for (let i = 0; i < 4; i++) {
 
 function InfiniteMenu({ items = [] }) {
   const ref = useRef();
+  
   useEffect(() => {
     if (ref.current && items.length > 0) {
-      new InfiniteGridMenu(
-        ref.current,
-        items,
-        () => {},           // onActiveItemChange
-        () => {},           // onMovementChange  
-        (sk) => sk.run(),   // onInit
-        1.0                 // scale
-      );
+      new InfiniteGridMenu(ref.current, items);
     }
   }, [items]);
-  return <canvas ref={ref} width={800} height={600} id="infinite-grid-menu-canvas" />;
+  
+  return <canvas ref={ref} id="infinite-grid-menu-canvas" />;
 }
 
 function WelcomeScreen({ onContinue }) {
   const [showCake, setShowCake] = useState(false);
   return (
     <div className="welcome-screen">
-      {showCake && <div className="dim-overlay" onClick={() => setShowCake(false)}><div className="cake-glow-wrapper"><div className="candle-glow" /><img src="/cake.png" className="cake-modal" /></div></div>}
-      <div className="spotlight" /><div className="rabbit-wrapper"><span className="click-text click-left">click</span><img src="/rabbitcake.png" className="rabbit-cake" onClick={() => setShowCake(true)} /><span className="click-text click-right">click</span></div>
+      {showCake && <div className="dim-overlay" onClick={() => setShowCake(false)}><div className="cake-glow-wrapper"><div className="candle-glow" /><img src="/cake.png" className="cake-modal" alt="Cake" /></div></div>}
+      <div className="spotlight" /><div className="rabbit-wrapper"><span className="click-text click-left">click</span><img src="/rabbitcake.png" className="rabbit-cake" onClick={() => setShowCake(true)} alt="Rabbit with cake" /><span className="click-text click-right">click</span></div>
       <button className="continue-button" onClick={onContinue}>Continue</button>
     </div>
   );
@@ -523,18 +560,25 @@ function WelcomeScreen({ onContinue }) {
 
 const months = ['January', 'February', 'March', 'April', 'June', 'July'];
 const stackCards = [
-  <img key="1" src="https://picsum.photos/500/700?1" className="stack-card-image" />,
-  <img key="2" src="https://picsum.photos/500/700?2" className="stack-card-image" />,
-  <img key="3" src="https://picsum.photos/500/700?3" className="stack-card-image" />,
-  <img key="4" src="https://picsum.photos/500/700?4" className="stack-card-image" />
+  <img key="1" src="https://picsum.photos/500/700?1" className="stack-card-image" alt="Memory 1" />,
+  <img key="2" src="https://picsum.photos/500/700?2" className="stack-card-image" alt="Memory 2" />,
+  <img key="3" src="https://picsum.photos/500/700?3" className="stack-card-image" alt="Memory 3" />,
+  <img key="4" src="https://picsum.photos/500/700?4" className="stack-card-image" alt="Memory 4" />
 ];
-const infiniteItems = [{ image: '/ays1.png' }, { image: '/ays2.png' }, { image: '/ays3.png' }, { image: '/ays4.png' }];
+const infiniteItems = [
+  { image: '/ays1.png' }, 
+  { image: '/ays2.png' }, 
+  { image: '/ays3.png' }, 
+  { image: '/ays4.png' }
+];
 
 export default function App() {
   const [showApp, setShowApp] = useState(false);
   const [showStack, setShowStack] = useState(false);
   const [selected, setSelected] = useState(null);
+  
   if (!showApp) return <WelcomeScreen onContinue={() => setShowApp(true)} />;
+  
   return (
     <div className="app-scroll app-bg-active">
       {selected && <MonthCardModal month={selected.m} index={selected.i} onClose={() => setSelected(null)} />}
@@ -543,10 +587,10 @@ export default function App() {
         <div className="page-1-inner"><div className="page-1-text" /><div className="page-1-swap"><CardSwap onCardClick={i => setSelected({ m: months[i], i })}>{months.map((m, i) => <Card key={i} customClass="month-card"><h3>{m}</h3></Card>)}</CardSwap></div></div>
       </section>
       <section className="page page-2">
-  <div className="page-2-right">
-    <InfiniteMenu items={infiniteItems} />
-  </div>
-</section>
+        <div className="page-2-right">
+          <InfiniteMenu items={infiniteItems} />
+        </div>
+      </section>
       <section className={`page page-3 ${showStack ? 'page-3-dark' : ''}`}>
         {!showStack ? <Stepper onComplete={() => setShowStack(true)} /> : <div className="stack-box fade-in"><Stack cards={stackCards} randomRotation sensitivity={180} /></div>}
       </section>
