@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  
   Children,
   cloneElement,
   forwardRef,
@@ -12,8 +13,6 @@ import gsap from 'gsap';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { mat4, quat, vec2, vec3 } from 'gl-matrix';
 import './styles.css';
-
-
 
 const Card = forwardRef(({ customClass, ...rest }, ref) => (
   <div
@@ -154,6 +153,9 @@ const CardSwap = ({
       });
     };
 
+   
+    containerRef.current.triggerSwap = swap;
+
     swap();
     intervalRef.current = window.setInterval(swap, delay);
 
@@ -177,7 +179,9 @@ const CardSwap = ({
       };
     }
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+    };
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, refs]);
 
   const rendered = childArr.map((child, i) =>
@@ -189,6 +193,8 @@ const CardSwap = ({
           onClick: e => {
             child.props.onClick?.(e);
             onCardClick?.(i);
+            // trigger the card
+            containerRef.current?.triggerSwap?.();
           }
         })
       : child
@@ -204,7 +210,6 @@ const CardSwap = ({
     </div>
   );
 };
-
 
 
 function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }) {
@@ -347,6 +352,7 @@ function Stack({
 function Stepper({ onComplete }) {
   const [step, setStep] = useState(0);
   const [input, setInput] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
 
   const steps = [
     { type: 'message', text: 'Survived this year!' },
@@ -356,7 +362,7 @@ function Stepper({ onComplete }) {
     {
       type: 'input',
       text: 'How would you describe the year as?',
-      placeholder: 'LOCK IN SHAKESPEAR'
+      placeholder: "CHOP CHOP write fast, we ain't got another year"
     }
   ];
 
@@ -375,28 +381,49 @@ function Stepper({ onComplete }) {
   };
 
   return (
-    <div className="stepper-container">
-      <div className="stepper-inner">
-        <h2 className="stepper-text">{current.text}</h2>
+    <>
+      {inputFocused && (
+        <div
+          className="dim-overlay"
+          onClick={() => setInputFocused(false)}
+        />
+      )}
 
-        {current.type === 'input' ? (
-          <input
-            className="stepper-input"
-            placeholder={current.placeholder}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-        ) : (
-          <button className="stepper-button" onClick={next}>
-            Next
-          </button>
-        )}
+      <div className={`stepper-container ${inputFocused ? 'stepper-hidden' : ''}`}>
+        <div className="stepper-inner">
+          <h2 className="stepper-text">{current.text}</h2>
+
+          {current.type === 'input' ? (
+            <input
+              className="stepper-input"
+              placeholder={current.placeholder}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setInputFocused(true)}
+            />
+          ) : (
+            <button className="stepper-button" onClick={next}>
+              Next
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+
+      {inputFocused && (
+        <input
+          autoFocus
+          className="stepper-input-focused"
+          placeholder={current.placeholder}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => setInputFocused(false)}
+        />
+      )}
+    </>
   );
 }
-
 
 
 const discVertShaderSource = `#version 300 es
@@ -999,76 +1026,51 @@ class InfiniteGridMenu {
     this.onMovementChange = onMovementChange || (() => {});
     this.scaleFactor = scale;
     this.camera.position[2] = 3 * scale;
-  
     this.#init(onInit);
-  
   }
 
   resize() {
-    
     this.viewportSize = vec2.set(this.viewportSize || vec2.create(), this.canvas.clientWidth, this.canvas.clientHeight);
 
     const gl = this.gl;
-  
-
     const needsResize = resizeCanvasToDisplaySize(gl.canvas);
     if (needsResize) {
-  
       gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  
     }
 
     this.#updateProjectionMatrix(gl);
-  
   }
 
   run(time = 0) {
-  
-  
     this.#deltaTime = Math.min(32, time - this.#time);
     this.#time = time;
-  
     this.#deltaFrames = this.#deltaTime / this.TARGET_FRAME_DURATION;
-  
     this.#frames += this.#deltaFrames;
 
     this.#animate(this.#deltaTime);
-  
     this.#render();
 
-   
     requestAnimationFrame(t => this.run(t));
-  
   }
 
   #init(onInit) {
-   
-    this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false });
+    this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: true });
     const gl = this.gl;
     if (!gl) {
       throw new Error('No WebGL 2 context!');
-   
     }
 
-   
     this.viewportSize = vec2.fromValues(this.canvas.clientWidth, this.canvas.clientHeight);
-   
     this.drawBufferSize = vec2.clone(this.viewportSize);
 
     this.discProgram = createProgram(gl, [discVertShaderSource, discFragShaderSource], null, {
-   
       aModelPosition: 0,
       aModelNormal: 1,
       aModelUvs: 2,
       aInstanceMatrix: 3
-   
     });
 
-
-
-
     this.discLocations = {
-
       aModelPosition: gl.getAttribLocation(this.discProgram, 'aModelPosition'),
       aModelUvs: gl.getAttribLocation(this.discProgram, 'aModelUvs'),
       aInstanceMatrix: gl.getAttribLocation(this.discProgram, 'aInstanceMatrix'),
@@ -1082,7 +1084,6 @@ class InfiniteGridMenu {
       uFrames: gl.getUniformLocation(this.discProgram, 'uFrames'),
       uItemCount: gl.getUniformLocation(this.discProgram, 'uItemCount'),
       uAtlasSize: gl.getUniformLocation(this.discProgram, 'uAtlasSize')
-    
     };
 
     this.discGeo = new DiscGeometry(56, 1);
@@ -1150,8 +1151,6 @@ class InfiniteGridMenu {
     });
   }
 
-
-
   #initDiscInstances(count) {
     const gl = this.gl;
     this.discInstances = {
@@ -1179,7 +1178,6 @@ class InfiniteGridMenu {
     gl.bindVertexArray(null);
   }
 
-
   #animate(deltaTime) {
     const gl = this.gl;
     this.control.update(deltaTime, this.TARGET_FRAME_DURATION);
@@ -1205,9 +1203,6 @@ class InfiniteGridMenu {
 
     this.smoothRotationVelocity = this.control.rotationVelocity;
   }
-
-
-
 
   #render() {
     const gl = this.gl;
@@ -1276,8 +1271,6 @@ class InfiniteGridMenu {
       this.camera.near,
       this.camera.far
     );
-
-
     mat4.invert(this.camera.matrices.inversProjection, this.camera.matrices.projection);
   }
 
@@ -1290,10 +1283,7 @@ class InfiniteGridMenu {
 
     if (isMoving !== this.movementActive) {
       this.movementActive = isMoving;
-
       this.onMovementChange(isMoving);
-
-
     }
 
     if (!this.control.isPointerDown) {
@@ -1309,18 +1299,12 @@ class InfiniteGridMenu {
 
     this.camera.position[2] += (cameraTargetZ - this.camera.position[2]) / damping;
     this.#updateCameraMatrix();
-  
   }
 
-
-  
   #findNearestVertexIndex() {
-  
-  
     const n = this.control.snapDirection;
     const inversOrientation = quat.conjugate(quat.create(), this.control.orientation);
     const nt = vec3.transformQuat(vec3.create(), n, inversOrientation);
-
 
     let maxD = -1;
     let nearestVertexIndex;
@@ -1341,43 +1325,38 @@ class InfiniteGridMenu {
 }
 
 const defaultItems = [
-  {
-    image: 'https://picsum.photos/900/900?grayscale',
-    link: 'https://google.com/',
-    title: '',
-    description: ''
-  }
+  { image: 'https://picsum.photos/900/900?grayscale' }
 ];
 
 function InfiniteMenu({ items = [], scale = 1.0 }) {
   const canvasRef = useRef(null);
-  const [activeItem, setActiveItem] = useState(null);
-  const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    let sketch;
+    if (!canvas) return;
 
     const safeItems = items.length ? items : defaultItems;
+    let sketch;
 
-    const handleActiveItem = index => {
-      const itemIndex = index % safeItems.length;
-      setActiveItem(safeItems[itemIndex]);
-    };
-
-    if (canvas) {
+    try {
       sketch = new InfiniteGridMenu(
         canvas,
         safeItems,
-        handleActiveItem,
-        setIsMoving,
+        () => {},
+        () => {},
         sk => sk.run(),
         scale
       );
+    } catch (e) {
+      console.error('InfiniteMenu init failed:', e);
     }
 
     const handleResize = () => {
-      if (sketch) sketch.resize();
+      try {
+        sketch?.resize();
+      } catch (e) {
+        console.error('InfiniteMenu resize failed:', e);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -1388,35 +1367,37 @@ function InfiniteMenu({ items = [], scale = 1.0 }) {
     };
   }, [items, scale]);
 
-  const handleButtonClick = () => {
-    if (!activeItem?.link) return;
-    if (activeItem.link.startsWith('http')) {
-      window.open(activeItem.link, '_blank');
-    }
-  };
+  return <canvas id="infinite-grid-menu-canvas" ref={canvasRef} />;
+}
+
+
+function WelcomeScreen({ onContinue }) {
+  const [showCake, setShowCake] = useState(false);
 
   return (
-    <div className="infinite-menu-wrapper">
-      <canvas id="infinite-grid-menu-canvas" ref={canvasRef} />
-
-      {activeItem && (
-        <>
-          <h2 className={`face-title ${isMoving ? 'inactive' : 'active'}`}>{activeItem.title}</h2>
-          <p className={`face-description ${isMoving ? 'inactive' : 'active'}`}>{activeItem.description}</p>
-          <div onClick={handleButtonClick} className={`action-button ${isMoving ? 'inactive' : 'active'}`}>
-            <p className="action-button-icon">&#x2197;</p>
-          </div>
-        </>
+    <div className="welcome-screen">
+      {showCake && (
+        <div className="dim-overlay" onClick={() => setShowCake(false)}>
+          <img src="/cake.png" alt="Cake" className="cake-modal" onClick={(e) => e.stopPropagation()} />
+        </div>
       )}
+
+      <img
+        src="/rabbitcake.png"
+        alt="Rabbit Cake"
+        className="rabbit-cake"
+        onClick={() => setShowCake(true)}
+      />
+
+      <button className="continue-button" onClick={onContinue}>
+        Continue
+      </button>
     </div>
   );
 }
 
 
-
-
 const months = ['January', 'February', 'March', 'April', 'June', 'July'];
-
 
 const stackCards = [
   <img
@@ -1442,52 +1423,33 @@ const stackCards = [
 ];
 
 const infiniteItems = [
-  {
-    image: 'https://picsum.photos/900/900?random=1',
-    link: 'https://example.com/1',
-    title: 'First Orbit',
-    description: 'A memory that started it all.'
-  },
-  {
-    image: 'https://picsum.photos/900/900?random=2',
-    link: 'https://example.com/2',
-    title: 'Middle of the Year',
-    description: 'Moments that changed your direction.'
-  },
-  {
-    image: 'https://picsum.photos/900/900?random=3',
-    link: 'https://example.com/3',
-    title: 'Late Nights',
-    description: 'The quiet hours that stayed with you.'
-  },
-  {
-    image: 'https://picsum.photos/900/900?random=4',
-    link: 'https://example.com/4',
-    title: 'New Beginnings',
-    description: 'Where the story turns forward.'
-  }
+  { image: 'https://picsum.photos/900/900?random=1' },
+  { image: 'https://picsum.photos/900/900?random=2' },
+  { image: 'https://picsum.photos/900/900?random=3' },
+  { image: 'https://picsum.photos/900/900?random=4' }
 ];
 
 export default function App() {
+  const [showApp, setShowApp] = useState(false);
   const [showStack, setShowStack] = useState(false);
 
   const handleMonthClick = index => {
     const month = months[index];
     console.log('Month clicked:', month);
-   
   };
+
+  if (!showApp) {
+    return <WelcomeScreen onContinue={() => setShowApp(true)} />;
+  }
 
   return (
     <div className="app-scroll">
-    
-
+  
       <section className="page page-1">
         <div className="page-1-inner">
-       
           <div className="page-1-text">
-         
             <h1>Your Year in Cards</h1>
-            <p>Tap the months on the right and watch your year shuffle by.</p>
+            <p>Click the months on the right and watch your year shuffle by.</p>
           </div>
 
           <div className="page-1-swap">
@@ -1500,25 +1462,22 @@ export default function App() {
             </CardSwap>
           </div>
         </div>
+        <div className="scroll-hint">scroll ↓</div>
       </section>
 
      
       <section className="page page-2">
         <div className="page-2-left">
           <h2>Infinite Memories</h2>
-          <p>
-            Spin the sphere, drag it around, and watch your moments orbit in an
-            endless loop.
-          </p>
+          <p>Spin and drag the sphere to explore your year's moments.</p>
         </div>
         <div className="page-2-right">
-          <div className="infinite-box">
-            <InfiniteMenu items={infiniteItems} scale={1.0} />
-          </div>
+          <InfiniteMenu items={infiniteItems} scale={1.0} />
         </div>
+        <div className="scroll-hint">scroll ↓</div>
       </section>
 
-
+     
       <section className={`page page-3 ${showStack ? 'page-3-dark' : ''}`}>
         {!showStack ? (
           <Stepper onComplete={() => setShowStack(true)} />
