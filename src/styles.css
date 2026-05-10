@@ -55,9 +55,9 @@ body {
   position: absolute;
   width: 600px;
   height: 600px;
-  top: 46%;
-  left: 46%;
-  transform: translate(-50%, -60%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -62%);
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 0.18) 0%,
@@ -260,17 +260,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-.page-1-subtitle {
-  font-family: 'Lavishly Yours', cursive;
-  font-size: 3.6rem;
-  font-weight: 400;
-}
-
-.page-1-subsub {
-  font-family: 'Nothing You Could Do', cursive;
-  font-size: 1.4rem;
 }
 
 .page-1-swap {
@@ -598,4 +587,4 @@ body {
     right: -80px;
     font-size: 2rem;
   }
-}
+} 

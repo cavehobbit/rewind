@@ -20,10 +20,6 @@ const Card = forwardRef(({ customClass, ...rest }, ref) => (
     className={`card-swap-card ${customClass ?? ''} ${rest.className ?? ''}`.trim()}
   />
 ));
-
-
-
-
 Card.displayName = 'Card';
 
 const makeSlot = (i, distX, distY, total) => ({
@@ -67,10 +63,7 @@ const CardSwap = ({
   };
 
   const childArr = useMemo(() => Children.toArray(children), [children]);
-  const refs = useMemo(
-    () => childArr.map(() => React.createRef()),
-    [childArr.length]
-  );
+  const refs = useMemo(() => childArr.map(() => React.createRef()), [childArr.length]);
 
   const order = useRef(Array.from({ length: childArr.length }, (_, i) => i));
   const tlRef = useRef(null);
@@ -215,18 +208,27 @@ const CardSwap = ({
 function MonthCardModal({ month, index, onClose }) {
   const isOdd = index % 2 === 0;
 
-  const monthMap = {
+  const monthImageMap = {
     January: 'Jan.jfif',
     February: 'Feb.jfif',
     March: 'march.jfif',
-    April: 'May.jfif',   // using May for April
+    April: 'May.jfif',
     June: 'June.jfif',
     July: 'July.jfif'
   };
 
+  const monthTextMap = {
+    January: "I hope January gave you a soft start — slow mornings, quiet wins, and reminders that you made it into another year.",
+    February: "I hope February wrapped you in warmth — from friends, from love, and from the way you kept choosing to stay.",
+    March: "I hope March nudged you forward — into new risks, new habits, and proof that you're stronger than you think.",
+    April: "I hope April surprised you — with tiny joys, dumb inside jokes, and moments you didn’t see coming.",
+    June: "I hope June brought lighter days, where the air felt easier to breathe and your thoughts were a little kinder.",
+    July: "I hope July was loud in the best way — laughter that echoed, memories that stuck, and a heart that felt more alive."
+  };
+
   const cardData = {
-    text: `This was ${month}! A month full of memories, growth, and moments that shaped your year.`,
-    image: `/${monthMap[month]}`
+    text: monthTextMap[month] ?? `I hope this month held something good for you, even if it was small.`,
+    image: `/${monthImageMap[month]}`
   };
 
   return (
@@ -445,7 +447,7 @@ void main() {
     gl_Position = uProjectionMatrix * uViewMatrix * worldPosition;
     vAlpha = smoothstep(0.5, 1., normalize(worldPosition.xyz).z) * .9 + .1;
     vUvs = aModelUvs;
-    vInstanceId = gl_InstanceID;
+    vInstanceId = gl_INSTANCE_ID;
 }`;
 
 const discFragShaderSource = `#version 300 es
@@ -471,7 +473,11 @@ void main() {
 }`;
 
 class Face {
-  constructor(a, b, c) { this.a = a; this.b = b; this.c = c; }
+  constructor(a, b, c) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+  }
 }
 
 class Vertex {
@@ -487,19 +493,25 @@ class Geometry {
     this.vertices = [];
     this.faces = [];
   }
+
   addVertex(...args) {
     for (let i = 0; i < args.length; i += 3) {
       this.vertices.push(new Vertex(args[i], args[i + 1], args[i + 2]));
     }
     return this;
   }
+
   addFace(...args) {
     for (let i = 0; i < args.length; i += 3) {
       this.faces.push(new Face(args[i], args[i + 1], args[i + 2]));
     }
     return this;
   }
-  get lastVertex() { return this.vertices[this.vertices.length - 1]; }
+
+  get lastVertex() {
+    return this.vertices[this.vertices.length - 1];
+  }
+
   subdivide(divisions = 1) {
     const midPointCache = {};
     let f = this.faces;
@@ -520,6 +532,7 @@ class Geometry {
     this.faces = f;
     return this;
   }
+
   spherize(radius = 1) {
     this.vertices.forEach(vertex => {
       vec3.normalize(vertex.normal, vertex.position);
@@ -527,6 +540,7 @@ class Geometry {
     });
     return this;
   }
+
   get data() {
     return {
       vertices: new Float32Array(this.vertices.flatMap(v => Array.from(v.position))),
@@ -534,6 +548,7 @@ class Geometry {
       uvs: new Float32Array(this.vertices.flatMap(v => Array.from(v.uv)))
     };
   }
+
   getMidPoint(ndxA, ndxB, cache) {
     const cacheKey = ndxA < ndxB ? `k_${ndxB}_${ndxA}` : `k_${ndxA}_${ndxB}`;
     if (cache[cacheKey] !== undefined) return cache[cacheKey];
@@ -674,8 +689,12 @@ class ArcballControl {
       vec2.copy(this.previousPointerPos, this.pointerPos);
       this.isPointerDown = true;
     });
-    canvas.addEventListener('pointerup', () => { this.isPointerDown = false; });
-    canvas.addEventListener('pointerleave', () => { this.isPointerDown = false; });
+    canvas.addEventListener('pointerup', () => {
+      this.isPointerDown = false;
+    });
+    canvas.addEventListener('pointerleave', () => {
+      this.isPointerDown = false;
+    });
     canvas.addEventListener('pointermove', e => {
       if (this.isPointerDown) vec2.set(this.pointerPos, e.clientX, e.clientY);
     });
@@ -1054,9 +1073,7 @@ function WelcomeScreen({ onContinue }) {
           </div>
         </div>
       )}
-
       <div className="spotlight"></div>
-
       <div className="rabbit-wrapper">
         <span className="click-text click-left">click</span>
         <img
@@ -1067,7 +1084,6 @@ function WelcomeScreen({ onContinue }) {
         />
         <span className="click-text click-right">click</span>
       </div>
-
       <button className="continue-button" onClick={onContinue}>
         Continue
       </button>
@@ -1085,10 +1101,10 @@ const stackCards = [
 ];
 
 const infiniteItems = [
-  { image: 'https://picsum.photos/900/900?random=1' },
-  { image: 'https://picsum.photos/900/900?random=2' },
-  { image: 'https://picsum.photos/900/900?random=3' },
-  { image: 'https://picsum.photos/900/900?random=4' }
+  { image: '/ays1.png' },
+  { image: '/ays2.png' },
+  { image: '/ays3.png' },
+  { image: '/ays4.png' }
 ];
 
 export default function App() {
@@ -1113,10 +1129,7 @@ export default function App() {
           <h1 className="happy-birthday-title">Happy Birthday</h1>
         </div>
         <div className="page-1-inner">
-          <div className="page-1-text">
-            <h2 className="page-1-subtitle">your year</h2>
-            <p className="page-1-subsub">click to view</p>
-          </div>
+          <div className="page-1-text"></div>
           <div className="page-1-swap">
             <CardSwap
               onCardClick={i => {
